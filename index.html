@@ -807,71 +807,72 @@
       }
 
     
-// 封面点击跳转
-const cover = document.getElementById('cover');
-cover.addEventListener('click', () => {
-  cover.classList.add('is-open');
-});
+document.addEventListener('DOMContentLoaded', function(){
+  // 封面点击跳转，只声明一次cover！
+  const cover = document.getElementById('cover');
+  cover.addEventListener('click', () => {
+    cover.classList.add('is-open');
+  });
 
-// ==========下面是你原来的启示录代码，保持不动==========
-// 启示录对话逻辑
-const chatData = [
-{q:"太自卑怎么办", a:"人是群居动物 但思想不是"},
-{q:"人为什么而活？", a:"唯此所谓"},
-{q:"爱的本质是什么？", a:"爱是一块泥土 万物靠它扎根"},
-{q:"忘记痛苦就能幸福吗？", a:"今天的你还需要一个答案 但明天的你或许不需要了"},
-{q:"如果相遇要分别 那意义在哪？", a:"人总是要死的 但你不还是坚定的选择了活着吗"},
-{q:"痛苦的终点是？", a:"死无葬身之地"}
-];
+  // ==========启示录对话逻辑==========
+  const chatData = [
+    {q:"太自卑怎么办", a:"人是群居动物 但思想不是"},
+    {q:"人为什么而活？", a:"唯此所谓"},
+    {q:"爱的本质是什么？", a:"爱是一块泥土 万物靠它扎根"},
+    {q:"忘记痛苦就能幸福吗？", a:"今天的你还需要一个答案 但明天的你或许不需要了"},
+    {q:"如果相遇要分别 那意义在哪？", a:"人总是要死的 但你不还是坚定的选择了活着吗"},
+    {q:"痛苦的终点是？", a:"死无葬身之地"}
+  ];
 
-// 彩蛋台词，按顺序轮换
-const eggTexts = [
-  "到此为止吧",
-  "你还要追问到什么时候",
-  "贪得无厌的家伙 如果你还有其他问题去找沈聿吧"
-];
-let eggIndex = 0;
+  // 彩蛋台词，按顺序轮换
+  const eggTexts = [
+    "到此为止吧",
+    "你还要追问到什么时候",
+    "贪得无厌的家伙 如果你还有其他问题去找沈聿吧"
+  ];
+  let eggIndex = 0;
 
-const chatContent = document.getElementById('chatContent');
-const questionBtns = [...document.querySelectorAll('.chat-question-btn')];
-let answeredCount = 0;
-const totalQ = chatData.length;
+  const chatContent = document.getElementById('chatContent');
+  const questionBtns = [...document.querySelectorAll('.chat-question-btn')];
+  let answeredCount = 0;
+  const totalQ = chatData.length;
 
-function addBubble(text, isUser=false){
-  const div = document.createElement('div');
-  div.className = `chat-bubble ${isUser ? 'user':'resp'}`;
-  div.innerText = text;
-  chatContent.appendChild(div);
-  chatContent.scrollTop = chatContent.scrollHeight;
-}
+  function addBubble(text, isUser=false){
+    const div = document.createElement('div');
+    div.className = `chat-bubble ${isUser ? 'user':'resp'}`;
+    div.innerText = text;
+    chatContent.appendChild(div);
+    chatContent.scrollTop = chatContent.scrollHeight;
+  }
 
-questionBtns.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const idx = Number(btn.dataset.q);
-    if(answeredCount >= totalQ){
-      // 判断：只有第3条彩蛋（索引2）才弹出 "...好"
-      if(eggIndex === 2){
-        addBubble("...好", true);
-        setTimeout(()=>{
+  questionBtns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const idx = Number(btn.dataset.q);
+      if(answeredCount >= totalQ){
+        // 判断：只有第3条彩蛋（索引2）才弹出 "...好"
+        if(eggIndex === 2){
+          addBubble("...好", true);
+          setTimeout(()=>{
+            addBubble(eggTexts[eggIndex]);
+            eggIndex = (eggIndex + 1) % eggTexts.length;
+          },400);
+        }else{
+          // 前两句：直接弹出台词，不显示...好
           addBubble(eggTexts[eggIndex]);
           eggIndex = (eggIndex + 1) % eggTexts.length;
-        },400);
-      }else{
-        // 前两句：直接弹出台词，不显示...好
-        addBubble(eggTexts[eggIndex]);
-        eggIndex = (eggIndex + 1) % eggTexts.length;
+        }
+        return;
       }
-      return;
-    }
 
-    if(btn.classList.contains('used')) return;
-    const item = chatData[idx];
-    addBubble(item.q, true);
-    btn.classList.add('used');
-    answeredCount++;
-    setTimeout(()=>{
-      addBubble(item.a);
-    },450);
+      if(btn.classList.contains('used')) return;
+      const item = chatData[idx];
+      addBubble(item.q, true);
+      btn.classList.add('used');
+      answeredCount++;
+      setTimeout(()=>{
+        addBubble(item.a);
+      },450);
+    })
   })
 })
 </script>
