@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#08090b">
+  <meta name="description" content="寂生个人介绍与点单须知">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2308090b'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23deddd8' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%237d2023'/%3E%3C/svg%3E">
+  <title>寂生 · Allothiri</title>
+  <style>
+    :root {
+      --black: #08090b;
+      --black-soft: #0d0f12;
+      --paper: #deddd8;
+      --paper-dim: rgba(222, 221, 216, .62);
+      --paper-faint: rgba(222, 221, 216, .18);
+      --paper-ghost: rgba(222, 221, 216, .07);
+      --red: #7d2023;
+      --red-bright: #b83b3f;
+      --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimSun, serif;
+      --kai: KaiTi, STKaiti, "楷体", serif;
+      --latin: "Bodoni 72", Didot, Georgia, serif;
+      --ease: cubic-bezier(.19, 1, .22, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--black); color-scheme: dark; }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background: var(--black);
+      color: var(--paper);
+      font-family: var(--serif);
+      font-weight: 300;
+      letter-spacing: .08em;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, a { color: inherit; font: inherit; }
+    button { border: 0; }
+    a { text-decoration: none; }
+
+    .noise, .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+    .noise {
+      z-index: 800;
+      opacity: .055;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+      animation: grain .7s steps(2) infinite;
+      mix-blend-mode: soft-light;
+    }
+    .vignette {
+      z-index: 790;
+      background: radial-gradient(circle at 50% 44%, transparent 28%, rgba(0, 0, 0, .35) 68%, rgba(0, 0, 0, .84) 100%);
+    }
+    @keyframes grain {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-1.5%, 1%); }
+      50% { transform: translate(1%, -1.5%); }
+      75% { transform: translate(1.5%, 1%); }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* 封面：尘封记事本 */
+    .cover {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      cursor: pointer;
+      background: #050506;
+      transition: opacity 1.4s ease, visibility 1.4s;
+    }
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: -5%;
+      background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.8)), url("assets/dustbound-notebook.png") center / cover;
+      filter: blur(20px) brightness(.5) contrast(1.08);
+      transform: scale(1.08);
+      transition: transform 2.2s var(--ease), filter 2.2s ease;
+    }
+    .cover::after { content: ""; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 48%, transparent 28%, rgba(0,0,0,.78) 100%); pointer-events: none; }
+    .cover.is-open { opacity: 0; visibility: hidden; pointer-events: none; }
+    .cover-poster {
+      position: relative;
+      z-index: 3;
+      width: min(100%, 900px);
+      height: 100%;
+      object-fit: contain;
+      filter: contrast(1.06) brightness(.94);
+      box-shadow: 0 0 90px rgba(0,0,0,.92);
+      transform: scale(1.01);
+      transition: transform 1.45s var(--ease), filter 1.45s ease, opacity 1.1s ease;
+    }
+    .cover:hover .cover-poster { transform: scale(1.025); filter: contrast(1.1) brightness(1.03); }
+    .cover.is-opening::before { transform: scale(1.16); filter: blur(24px) brightness(.34); }
+    .cover.is-opening .cover-poster { opacity: 0; transform: scale(1.09) rotate(-1deg); filter: contrast(1.15) brightness(1.18) blur(2px); }
+    .cover-prompt {
+      position: absolute;
+      z-index: 12;
+      left: 50%;
+      bottom: max(28px, calc(18px + env(safe-area-inset-bottom)));
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      white-space: nowrap;
+      color: rgba(255, 255, 255, .58);
+      font-size: 11px;
+      letter-spacing: .52em;
+      text-indent: .52em;
+      animation: breathe 2.8s ease-in-out infinite;
+      transition: opacity .45s ease;
+    }
+    .cover.is-opening .cover-prompt { opacity: 0; }
+    .cover-prompt::before, .cover-prompt::after { content: ""; width: 38px; height: 1px; background: rgba(255,255,255,.25); }
+    @keyframes breathe { 50% { opacity: .35; } }
+
+    /* 全局导航 */
+    .topbar {
+      position: fixed;
+      z-index: 900;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      opacity: 0;
+      transform: translateY(-12px);
+      transition: opacity 1.2s ease .3s, transform 1.2s var(--ease) .3s;
+      pointer-events: none;
+    }
+    body.entered .topbar { opacity: 1; transform: none; pointer-events: auto; }
+    .brand { display: flex; align-items: baseline; gap: 12px; }
+    .brand-en { color: var(--paper); font: italic 14px/1 var(--latin); letter-spacing: .32em; }
+    .nav { display: flex; align-items: center; gap: 3px; padding: 4px; border: 1px solid var(--paper-faint); border-radius: 999px; background: rgba(8, 9, 11, .68); backdrop-filter: blur(14px); }
+    .nav button {
+      min-width: 74px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--paper-dim);
+      font-size: 12px;
+      letter-spacing: .26em;
+      text-indent: .26em;
+      cursor: pointer;
+      transition: color .5s ease, background .5s ease;
+    }
+    .nav button:hover { color: var(--paper); }
+    .nav button.is-on { color: var(--paper); background: rgba(255, 255, 255, .1); }
+
+    .folio {
+      position: fixed;
+      z-index: 900;
+      left: 48px;
+      bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--paper-dim);
+      font: italic 12px/1 var(--latin);
+      letter-spacing: .2em;
+      opacity: 0;
+      transition: opacity 1.2s ease .45s;
+    }
+    body.entered .folio { opacity: 1; }
+    .folio-current { color: var(--paper); font-size: 17px; }
+    .folio-line { width: 46px; height: 1px; background: var(--paper-faint); }
+    .pager {
+      position: fixed;
+      z-index: 900;
+      right: 48px;
+      bottom: 24px;
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 1.2s ease .45s;
+    }
+    body.entered .pager { opacity: 1; }
+    .pager button {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--paper-faint);
+      border-radius: 50%;
+      background: rgba(8, 9, 11, .56);
+      color: var(--paper-dim);
+      cursor: pointer;
+      transition: border-color .4s ease, color .4s ease, transform .4s var(--ease);
+    }
+    .pager button:not(:disabled):hover { color: var(--paper); border-color: var(--paper-dim); transform: scale(1.06); }
+    .pager button:disabled { opacity: .25; cursor: default; }
+    .music-toggle {
+      position: fixed;
+      z-index: 900;
+      right: 152px;
+      bottom: 24px;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--paper-faint);
+      border-radius: 50%;
+      background: rgba(8, 9, 11, .56);
+      color: var(--paper-dim);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 1.2s ease .45s, border-color .4s ease, color .4s ease, transform .4s var(--ease);
+    }
+    body.entered .music-toggle { opacity: 1; }
+    .music-toggle:hover { color: var(--paper); border-color: var(--paper-dim); transform: scale(1.06); }
+    .sound-bars { height: 14px; display: flex; align-items: center; gap: 2px; }
+    .sound-bars i { display: block; width: 1px; height: 6px; background: currentColor; transform-origin: center; }
+    .sound-bars i:nth-child(2) { height: 12px; }
+    .sound-bars i:nth-child(3) { height: 9px; }
+    body.music-playing .sound-bars i { animation: soundbar .8s ease-in-out infinite alternate; }
+    body.music-playing .sound-bars i:nth-child(2) { animation-delay: -.35s; }
+    body.music-playing .sound-bars i:nth-child(3) { animation-delay: -.6s; }
+    @keyframes soundbar { from { transform: scaleY(.45); } to { transform: scaleY(1.15); } }
+
+    /* 页面 */
+    .stage { position: fixed; inset: 0; z-index: 5; opacity: 0; transition: opacity 1.3s ease .2s; }
+    body.entered .stage { opacity: 1; }
+    .page {
+      position: absolute;
+      inset: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .8s ease, visibility .8s;
+    }
+    .page::-webkit-scrollbar { display: none; }
+    .page.is-on { opacity: 1; visibility: visible; pointer-events: auto; }
+    .page-inner {
+      position: relative;
+      z-index: 10;
+      width: min(1180px, calc(100% - 144px));
+      min-height: 100%;
+      margin: 0 auto;
+      padding: 128px 0 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 34px; color: var(--paper-dim); font: italic 12px/1 var(--latin); letter-spacing: .28em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 32px; height: 1px; background: var(--red-bright); }
+    .page-title { font-family: var(--kai); font-size: clamp(48px, 7vw, 100px); font-weight: 400; line-height: .9; letter-spacing: .08em; }
+    .page-title small { display: block; margin-top: 24px; color: var(--paper-dim); font: italic 12px/1 var(--latin); letter-spacing: .58em; text-transform: uppercase; }
+    .reveal { opacity: 0; transform: translateY(22px); }
+    .page.is-on .reveal { animation: rise 1.25s var(--ease) forwards; animation-delay: var(--delay, .1s); }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    .material {
+      position: absolute;
+      z-index: 3;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      filter: grayscale(1) contrast(1.08);
+      mix-blend-mode: screen;
+    }
+    .material-profile { right: -7%; bottom: -15%; width: min(46vw, 680px); opacity: .12; transform: rotate(-14deg); }
+    .material-notice { right: -8%; top: 2%; width: min(38vw, 560px); opacity: .09; transform: rotate(20deg); }
+    .material-story { left: -8%; bottom: -18%; width: min(44vw, 650px); opacity: .12; transform: rotate(12deg); }
+
+    /* 序章 */
+    .prologue { background: #07080a; }
+    .prologue-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(4, 5, 7, .18), rgba(4, 5, 7, .82) 68%, #07080a), url("assets/black-tide.png") center / cover;
+      filter: grayscale(1) contrast(1.12) brightness(.72);
+      transform: scale(1.025);
+    }
+    .prologue .page-inner { align-items: flex-end; text-align: right; }
+    .prologue-copy { width: min(680px, 78%); position: relative; }
+    .prologue-mark { color: var(--red-bright); font-size: 12px; letter-spacing: .5em; margin-bottom: 26px; }
+    .prologue-question { font-family: var(--kai); font-size: clamp(25px, 3.4vw, 48px); line-height: 1.75; letter-spacing: .14em; }
+    .prologue-words { margin-top: 52px; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 16px 28px; color: var(--paper-dim); font-family: var(--kai); font-size: 17px; letter-spacing: .5em; }
+    .prologue-words i { display: block; width: 42px; height: 1px; background: var(--paper-faint); transform: rotate(-12deg); }
+    .prologue-answer { margin-top: 62px; padding-right: 26px; border-right: 1px solid var(--red); color: var(--paper-dim); font-size: 14px; line-height: 2.2; letter-spacing: .3em; }
+    .prologue-answer strong { display: block; color: var(--paper); font-weight: 300; font-size: 20px; margin-top: 8px; }
+
+    /* 人物 */
+    .profile { background: radial-gradient(circle at 18% 25%, #15171a 0%, #0a0b0d 44%, #07080a 100%); }
+    .profile-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(60px, 8vw, 124px); align-items: center; }
+    .portrait {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #020203;
+      border: 1px solid var(--paper-faint);
+      transform: rotate(-2deg);
+      box-shadow: 34px 34px 0 rgba(255,255,255,.025), 0 30px 80px rgba(0,0,0,.65);
+    }
+    .portrait img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.2) brightness(.88); transform: scale(1.01); transition: transform 4s var(--ease), filter 1.2s ease; }
+    .portrait:hover img { transform: scale(1.055); filter: grayscale(1) contrast(1.3) brightness(1.04); }
+    .portrait::before { content: "ARCHIVE / 02"; position: absolute; z-index: 2; left: 18px; top: 18px; color: rgba(255,255,255,.62); font: italic 10px/1 var(--latin); letter-spacing: .3em; }
+    .portrait::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 90px rgba(0,0,0,.72); pointer-events: none; }
+    .profile-track { position: absolute; z-index: 3; left: 18px; right: 18px; bottom: 17px; display: flex; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.68); font: italic 9px/1.5 var(--latin); letter-spacing: .2em; text-transform: uppercase; }
+    .profile-track::before { content: ""; width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--red-bright); box-shadow: 0 0 12px rgba(184,59,63,.72); animation: trackPulse 1.8s ease-in-out infinite; }
+    @keyframes trackPulse { 50% { opacity: .32; transform: scale(.72); } }
+    .profile-name { margin-top: 20px; font-family: var(--kai); font-size: clamp(70px, 10vw, 138px); font-weight: 400; line-height: .8; letter-spacing: .08em; }
+    .profile-name-en { margin: 24px 0 34px; color: var(--paper-dim); font: italic 13px/1 var(--latin); letter-spacing: .64em; text-transform: uppercase; }
+    .identity { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 42px; }
+    .identity span { padding: 7px 14px; border: 1px solid var(--paper-faint); border-radius: 999px; color: var(--paper-dim); font-size: 12px; letter-spacing: .22em; }
+    .style-blocks { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--paper-faint); }
+    .style-block { padding: 24px 26px 18px 0; }
+    .style-block + .style-block { padding-left: 26px; border-left: 1px solid var(--paper-faint); }
+    .style-label { color: var(--red-bright); font: italic 11px/1 var(--latin); letter-spacing: .26em; text-transform: uppercase; }
+    .style-name { margin-top: 12px; font-family: var(--kai); font-size: 21px; line-height: 1.8; letter-spacing: .16em; }
+    .style-note { margin-top: 6px; color: var(--paper-dim); font-size: 12px; line-height: 1.8; }
+
+    /* 须知 */
+    .notice { background: linear-gradient(110deg, #090a0c, #0d0f12 50%, #08090b); }
+    .notice::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,9,11,.94), rgba(8,9,11,.78)), url("assets/shadow-floor.png") right center / cover; opacity: .28; filter: grayscale(1) contrast(1.18); }
+    .notice .page-inner { width: min(1240px, calc(100% - 144px)); }
+    .notice-head { display: grid; grid-template-columns: .65fr 1.35fr; gap: 70px; align-items: end; margin-bottom: 38px; }
+    .notice-intro { color: var(--paper-dim); font-size: 13px; line-height: 2.1; }
+    .notice-intro strong { display: block; margin-top: 12px; color: var(--paper); font-weight: 300; letter-spacing: .22em; }
+    .rules { list-style: none; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--paper-faint); }
+    .rules li {
+      position: relative;
+      min-height: 82px;
+      padding: 21px 28px 20px 58px;
+      border-bottom: 1px solid var(--paper-ghost);
+      color: var(--paper-dim);
+      font-size: 13px;
+      line-height: 1.9;
+      transition: color .4s ease, background .4s ease;
+    }
+    .rules li:nth-child(odd) { border-right: 1px solid var(--paper-ghost); }
+    .rules li:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; }
+    .rules li:hover { color: var(--paper); background: rgba(255,255,255,.018); }
+    .rules li::before { content: attr(data-no); position: absolute; left: 10px; top: 25px; color: var(--red-bright); font: italic 11px/1 var(--latin); letter-spacing: .12em; }
+    .rules em { color: var(--paper); font-style: normal; }
+    .safe-word { color: #fff; padding-bottom: 2px; border-bottom: 1px solid var(--red-bright); white-space: nowrap; }
+    .read-confirm { margin-top: 32px; display: flex; justify-content: flex-end; align-items: center; gap: 18px; color: var(--paper); font-family: var(--kai); font-size: 17px; letter-spacing: .34em; }
+    .read-confirm::before { content: ""; width: 90px; height: 1px; background: linear-gradient(90deg, transparent, var(--red)); }
+
+    /* 情节 */
+    .story { background: #07080a; }
+    .story-bg { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,8,10,.94) 0%, rgba(7,8,10,.52) 58%, rgba(7,8,10,.8) 100%), url("assets/vinyl-record.png") center / cover; filter: grayscale(1) contrast(1.15) brightness(.62); }
+    .story-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(64px, 8vw, 120px); align-items: center; }
+    .story-copy p { margin-top: 34px; color: var(--paper-dim); font-family: var(--kai); font-size: 17px; line-height: 2.2; letter-spacing: .2em; }
+    .story-motion { display: block; margin-top: 20px; color: var(--paper); font-size: inherit; line-height: 2; }
+    .story-echo { width: fit-content; margin: 10px 0 0 18px; padding-left: 18px; border-left: 1px solid var(--red); color: var(--paper); font-family: var(--kai); font-size: 15px; line-height: 2; letter-spacing: .2em; }
+    .link-list { border-top: 1px solid var(--paper-faint); }
+    .resource {
+      position: relative;
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      align-items: center;
+      gap: 22px;
+      padding: 28px 12px;
+      border-bottom: 1px solid var(--paper-faint);
+      overflow: hidden;
+    }
+    .resource::before { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.04); transform: translateX(-102%); transition: transform .7s var(--ease); }
+    .resource:hover::before { transform: none; }
+    .resource-no, .resource-copy { position: relative; z-index: 1; }
+    .resource-no { color: var(--red-bright); font: italic 12px/1 var(--latin); }
+    .resource-name { font-family: var(--kai); font-size: 27px; letter-spacing: .3em; }
+    .resource-en { display: block; margin-top: 8px; color: var(--paper-dim); font: 11px/1.7 var(--serif); letter-spacing: .18em; }
+    .closing { margin-top: 28px; text-align: right; color: var(--paper-dim); font-size: 12px; letter-spacing: .26em; }
+
+    .answers {
+      margin-top: 46px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 14px;
+      background: #edece7;
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      box-shadow: 0 26px 64px rgba(0, 0, 0, .58);
+      overflow: hidden;
+    }
+    .answers-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 18px 13px;
+      border-bottom: 1px solid rgba(0, 0, 0, .09);
+    }
+    .answers-title {
+      color: #17191d;
+      font-family: "Noto Serif SC", "Songti SC", SimSun, serif;
+      font-size: 15px;
+      letter-spacing: .24em;
+      text-indent: .24em;
+    }
+    .answers-tag {
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: #17a34a;
+      color: #fff;
+      font: 10px/1 "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: .16em;
+    }
+    .answers-body {
+      height: 260px;
+      overflow-y: auto;
+      padding: 18px 18px 4px;
+      scrollbar-width: none;
+    }
+    .answers-body::-webkit-scrollbar { display: none; }
+    .answers-row { display: flex; margin-bottom: 13px; }
+    .answers-row-them { justify-content: flex-start; }
+    .answers-row-me { justify-content: flex-end; }
+    .answers-bubble {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 13px;
+      font-size: 13px;
+      line-height: 1.8;
+      letter-spacing: .05em;
+      word-break: break-word;
+      animation: answersRise .5s cubic-bezier(.19, 1, .22, 1) forwards;
+    }
+    .answers-row-them .answers-bubble { background: #191b1f; border-top-left-radius: 4px; color: #f2f0ea; }
+    .answers-row-me .answers-bubble { background: #7d2023; border-top-right-radius: 4px; color: #f7f3ed; }
+    @keyframes answersRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .answers-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; padding: 4px 18px 14px; }
+    .answers-chips[hidden] { display: none; }
+    .answers-chip {
+      padding: 8px 14px;
+      border: 1px solid rgba(0, 0, 0, .13);
+      border-radius: 999px;
+      background: #f8f7f3;
+      color: #2c2f34;
+      font-size: 12px;
+      letter-spacing: .05em;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .35s ease, color .35s ease, border-color .35s ease;
+    }
+    .answers-chip:hover { background: #191b1f; border-color: #191b1f; color: #f2f0ea; }
+    .answers-foot { padding: 0 18px 18px; }
+    .answers-input {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(0, 0, 0, .13);
+      border-radius: 999px;
+      background: #f8f7f3;
+      color: #8b8d90;
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .35s ease, color .35s ease, background .35s ease;
+    }
+    .answers-input:hover { border-color: rgba(0, 0, 0, .3); color: #4c4f54; }
+    .answers-input.is-wait { border-color: rgba(125, 32, 35, .55); color: #7d2023; }
+    .answers-input.is-done { border-color: rgba(0, 0, 0, .1); background: #f0efea; color: #aaa9a7; cursor: default; }
+
+    :focus-visible { outline: 1px solid var(--paper); outline-offset: 4px; }
+
+    @media (max-width: 820px) {
+      .topbar { height: auto; padding: 14px 16px 0; flex-direction: column; align-items: stretch; gap: 11px; }
+      .brand { min-height: 26px; }
+      .brand-en { font-size: 13px; }
+      .nav { width: 100%; justify-content: space-between; }
+      .nav button { flex: 1; min-width: 0; padding: 7px 8px; font-size: 11px; letter-spacing: .1em; text-indent: .1em; }
+      .folio { left: 20px; bottom: max(28px, calc(18px + env(safe-area-inset-bottom))); }
+      .pager { right: 20px; bottom: max(20px, calc(10px + env(safe-area-inset-bottom))); }
+      .music-toggle { right: 116px; bottom: max(20px, calc(10px + env(safe-area-inset-bottom))); }
+      .page-inner, .notice .page-inner { width: calc(100% - 48px); padding: 134px 0 110px; justify-content: flex-start; }
+      .cover-poster { width: 100%; object-fit: cover; }
+      .cover::before { display: none; }
+      .prologue .page-inner { justify-content: center; }
+      .prologue-copy { width: 92%; }
+      .prologue-question { font-size: clamp(27px, 7vw, 42px); }
+      .prologue-words { margin-top: 42px; gap: 13px 20px; font-size: 15px; }
+      .profile-grid { position: relative; grid-template-columns: 1fr; gap: 0; }
+      .story-layout { grid-template-columns: 1fr; gap: 54px; }
+      .portrait { position: absolute; z-index: 5; top: 78px; right: 0; width: min(36vw, 170px); margin: 0; transform: rotate(2deg); box-shadow: 14px 16px 0 rgba(255,255,255,.02), 0 18px 44px rgba(0,0,0,.72); }
+      .profile-copy { position: relative; z-index: 2; order: -1; }
+      .profile-name { max-width: 58%; font-size: clamp(74px, 23vw, 120px); }
+      .profile-name-en { max-width: 62%; white-space: nowrap; font-size: 11px; letter-spacing: .42em; }
+      .identity { max-width: 60%; }
+      .profile-track { left: 9px; right: 9px; bottom: 8px; gap: 6px; padding-top: 7px; font-size: 6px; letter-spacing: .08em; line-height: 1.35; }
+      .profile-track::before { width: 4px; height: 4px; }
+      .notice-head { grid-template-columns: 1fr; gap: 28px; }
+      .rules { grid-template-columns: 1fr; }
+      .rules li:nth-child(odd) { border-right: 0; }
+      .rules li { padding-right: 4px; }
+      .story-copy p { font-size: 15px; }
+      .resource { grid-template-columns: 40px 1fr; padding: 24px 6px; gap: 14px; }
+      .resource-name { font-size: 23px; }
+      .answers { margin-top: 34px; border-radius: 12px; }
+      .answers-head { padding: 13px 15px 11px; }
+      .answers-body { height: 234px; padding: 16px 15px 4px; }
+      .answers-bubble { font-size: 12.5px; }
+      .answers-chips { padding: 4px 15px 13px; gap: 8px; }
+      .answers-foot { padding: 0 15px 15px; }
+      .material-profile { right: -24%; bottom: -4%; width: min(92vw, 520px); opacity: .1; }
+      .material-notice { right: -35%; top: 24%; width: min(95vw, 520px); opacity: .07; }
+      .material-story { left: -30%; bottom: 2%; width: min(100vw, 560px); opacity: .1; }
+    }
+
+    @media (max-width: 420px) {
+      .nav button { padding: 7px 8px; }
+      .page-title { font-size: 54px; }
+      .portrait { top: 84px; width: 38vw; }
+      .profile-name-en { max-width: 60%; font-size: 10px; letter-spacing: .3em; }
+      .identity { max-width: 58%; }
+      .style-blocks { grid-template-columns: 1fr; }
+      .style-block + .style-block { padding-left: 0; border-left: 0; border-top: 1px solid var(--paper-faint); }
+      .prologue-answer { font-size: 12px; }
+      .folio-line { width: 24px; }
+      .pager button { width: 40px; height: 40px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+      .noise { animation: none; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cover" id="cover" role="button" tabindex="0" aria-label="开启寂生的记事本">
+    <img class="cover-poster" src="assets/dustbound-notebook.png" alt="尘封的记事本 请谨慎阅读">
+    <span class="cover-prompt">轻触开启记事本</span>
+  </div>
+
+  <audio id="bgMusic" loop autoplay preload="metadata" playsinline>
+    <source src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/a8/51/78a85150-7d9f-2375-0694-13f72e66d8aa/mzaf_1912938291593901389.plus.aac.p.m4a" type="audio/mp4">
+    <source src="assets/satie-gnossienne-1.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="noise" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand" aria-label="Allothiri">
+      <span class="brand-en">Allothiri</span>
+    </div>
+    <nav class="nav" aria-label="章节导航">
+      <button class="is-on" type="button" data-go="0">序章</button>
+      <button type="button" data-go="1">人物</button>
+      <button type="button" data-go="2">须知</button>
+      <button type="button" data-go="3">情节</button>
+    </nav>
+  </header>
+
+  <main class="stage">
+    <section class="page prologue is-on" id="prologue" data-page="0" aria-labelledby="prologue-title">
+      <div class="prologue-bg" aria-hidden="true"></div>
+      <div class="page-inner">
+        <div class="prologue-copy">
+          <p class="prologue-mark reveal" style="--delay:.18s">● PROLOGUE / 00</p>
+          <h1 class="prologue-question reveal" id="prologue-title" style="--delay:.32s">人类无法飞翔<br>是因为心太重吗</h1>
+          <div class="prologue-words reveal" style="--delay:.52s">
+            <span>回忆</span><i></i><span>情感</span><i></i><span>羁绊</span><i></i><span>铸成枷锁</span>
+          </div>
+          <p class="prologue-answer reveal" style="--delay:.72s">若连自由也有重量<strong>飞翔 或许也是一种痛苦？</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page profile" id="profile" data-page="1" aria-labelledby="profile-title">
+      <img class="material material-profile" src="assets/drifting-feathers.png" alt="" aria-hidden="true">
+      <div class="page-inner">
+        <div class="profile-grid">
+          <figure class="portrait reveal" style="--delay:.2s">
+            <img class="profile-butterfly" src="assets/luminous-butterfly.gif" alt="白色发光蝴蝶在黑暗中碎散">
+            <figcaption class="profile-track">Park Bird · Are You Lost (Stripped)</figcaption>
+          </figure>
+          <div class="profile-copy">
+            <p class="eyebrow reveal" style="--delay:.12s">About Me · Individual Archive</p>
+            <h2 class="profile-name reveal" id="profile-title" style="--delay:.24s">寂生</h2>
+            <p class="profile-name-en reveal" style="--delay:.34s">Jisheng / Allothiri</p>
+            <div class="identity reveal" style="--delay:.44s">
+              <span>男 · 22 · 双</span><span>金牛</span><span>ISTP</span><span>常驻建模：伞耳鸟</span>
+            </div>
+            <div class="style-blocks reveal" style="--delay:.56s">
+              <div class="style-block">
+                <span class="style-label">Main Style / 主</span>
+                <p class="style-name">非典型 · 温虐<br>意识流</p>
+                <p class="style-note">如果叹息有深浅浓淡</p>
+              </div>
+              <div class="style-block">
+                <span class="style-label">Sub Style / 副</span>
+                <p class="style-name">低无锐利<br>水仙 · 白骑士</p>
+                <p class="style-note">如果眼泪有轻重缓急</p>
+              </div>
+            </div>
+            <div class="answers reveal" id="answers" style="--delay:.68s" aria-label="启示录 问答">
+              <div class="answers-head">
+                <span class="answers-title">启示录</span>
+                <span class="answers-tag">Allothiri</span>
+              </div>
+              <div class="answers-body" id="answersBody" aria-live="polite">
+                <div class="answers-row answers-row-them">
+                  <p class="answers-bubble">人们在这里留下了一些答案 你或许可以尝试询问得到指引</p>
+                </div>
+              </div>
+              <div class="answers-chips" id="answersChips" hidden>
+                <button class="answers-chip" type="button" data-i="0">太自卑怎么办</button>
+                <button class="answers-chip" type="button" data-i="1">人为什么而活？</button>
+                <button class="answers-chip" type="button" data-i="2">爱的本质是什么？</button>
+                <button class="answers-chip" type="button" data-i="3">忘记痛苦就能幸福吗？</button>
+                <button class="answers-chip" type="button" data-i="4">如果相遇要分别 那意义在哪？</button>
+                <button class="answers-chip" type="button" data-i="5">痛苦的终点是？</button>
+              </div>
+              <div class="answers-foot">
+                <button class="answers-input" id="answersInput" type="button"><span id="answersPh">点击选择想问的...</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page notice" id="notice" data-page="2" aria-labelledby="notice-title">
+      <img class="material material-notice" src="assets/drifting-feathers.png" alt="" aria-hidden="true">
+      <div class="page-inner">
+        <div class="notice-head">
+          <div>
+            <p class="eyebrow reveal" style="--delay:.1s">Individual Notice · 02</p>
+            <h2 class="page-title reveal" id="notice-title" style="--delay:.2s">须知<small>please read carefully</small></h2>
+          </div>
+          <p class="notice-intro reveal" style="--delay:.3s">时间慈悲 让我记得你<strong>可命运决绝 在我们之间划下重山的沟壡</strong></p>
+        </div>
+        <ol class="rules reveal" style="--delay:.4s">
+          <li data-no="01">男陪婉拒；<em>le 点单</em>默认姐姐们送单</li>
+          <li data-no="02">请提前说明喜好与雷点；未告知而踩到暗雷 概不负责</li>
+          <li data-no="03">婉拒黄色／黑脸 emoji</li>
+          <li data-no="04">包括但不限于玩烂梗及摆烂话术；如发生将大退 并视为送单</li>
+          <li data-no="05"><em>30 min / 5 min　60 min / 10 min</em> 决定去留 婉拒卡点</li>
+          <li data-no="06">婉拒过度提起“板陪关系”；出现则大退 并视为送单</li>
+          <li data-no="07">单中如有不适 请及时说出安全词：<span class="safe-word">“慢一点 寂生”</span></li>
+          <li data-no="08">虐单风格中低恋；婉拒无恋 高恋慎点</li>
+          <li data-no="09">接受我的邀约 请给一些时间 等待我与你共鸣</li>
+        </ol>
+        <p class="read-confirm reveal" style="--delay:.55s">下单默认已读须知</p>
+      </div>
+    </section>
+
+    <section class="page story" id="story" data-page="3" aria-labelledby="story-title">
+      <div class="story-bg" aria-hidden="true"></div>
+      <img class="material material-story" src="assets/drifting-feathers.png" alt="" aria-hidden="true">
+      <div class="page-inner">
+        <div class="story-layout">
+          <div class="story-copy">
+            <p class="eyebrow reveal" style="--delay:.1s">Fragments · 03</p>
+            <h2 class="page-title reveal" id="story-title" style="--delay:.2s">情节<small>where the record turns</small></h2>
+            <p class="reveal" style="--delay:.34s">我的瞳孔里住有两只候鸟<br>一只飞渡千山 一只栖于麦田<span class="story-motion">它挣脱 它跨越<br>它追寻 它盘旋<br>青山般的命运横亘在我与旧我之间</span></p>
+          </div>
+          <div>
+            <div class="link-list reveal" style="--delay:.36s">
+              <a class="resource" href="https://www.kdocs.cn/l/ckHnONXIQ8Hb" target="_blank" rel="noopener noreferrer">
+                <span class="resource-no">01 /</span>
+                <span class="resource-copy"><span class="resource-name">引言</span><span class="resource-en">这本书好像多出了些什么</span></span>
+              </a>
+              <a class="resource" href="https://www.kdocs.cn/l/cr5eYT3g8vcD" target="_blank" rel="noopener noreferrer">
+                <span class="resource-no">02 /</span>
+                <span class="resource-copy"><span class="resource-name">修正</span><span class="resource-en">翻阅过的人们留下的一些痕迹</span></span>
+              </a>
+              <a class="resource" href="https://www.kdocs.cn/l/cuQmUaw7t3Z5" target="_blank" rel="noopener noreferrer">
+                <span class="resource-no">03 /</span>
+                <span class="resource-copy"><span class="resource-name">书签</span><span class="resource-en">这里似乎留下了前人寄语</span></span>
+              </a>
+            </div>
+            <p class="story-echo reveal" style="--delay:.48s">往事乡音未改<br>泪水 是眼睛的方言</p>
+            <p class="closing reveal" style="--delay:.54s">END OF FILE · 启示录<br>SOUND — PARK BIRD · ARE YOU LOST (STRIPPED)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="folio" aria-live="polite">
+    <span class="folio-current" id="folioCurrent">00</span>
+    <span class="folio-line"></span>
+    <span>03</span>
+  </div>
+  <div class="pager" aria-label="翻页控制">
+    <button type="button" id="prevBtn" aria-label="上一章" disabled>←</button>
+    <button type="button" id="nextBtn" aria-label="下一章">→</button>
+  </div>
+  <button class="music-toggle" id="musicToggle" type="button" aria-label="播放背景音乐" aria-pressed="false" title="背景音乐">
+    <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const cover = document.getElementById('cover');
+      const pages = [...document.querySelectorAll('.page')];
+      const navButtons = [...document.querySelectorAll('[data-go]')];
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const folio = document.getElementById('folioCurrent');
+      const bgMusic = document.getElementById('bgMusic');
+      const musicToggle = document.getElementById('musicToggle');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const sectionSlugs = ['prologue', 'profile', 'notice', 'story'];
+      let current = 0;
+      let locked = false;
+      let opening = false;
+      let touchX = 0;
+      let touchY = 0;
+
+      const pad = value => String(value).padStart(2, '0');
+
+      function syncMusicState() {
+        const playing = !bgMusic.paused && !bgMusic.ended;
+        document.body.classList.toggle('music-playing', playing);
+        musicToggle.setAttribute('aria-pressed', String(playing));
+        musicToggle.setAttribute('aria-label', playing ? '暂停背景音乐' : '播放背景音乐');
+        musicToggle.title = playing ? '暂停背景音乐' : '播放背景音乐';
+      }
+
+      function playMusic() {
+        bgMusic.play().catch(syncMusicState);
+      }
+
+      function attemptAutoplay() {
+        playMusic();
+      }
+
+      function resumeMusicOnce() {
+        if (bgMusic.paused) playMusic();
+      }
+
+      function enter(skipAnimation = false) {
+        if (opening || document.body.classList.contains('entered')) return;
+        opening = true;
+        if (skipAnimation) {
+          document.body.classList.add('entered');
+          cover.classList.add('is-open');
+          cover.hidden = true;
+          return;
+        }
+        playMusic();
+        cover.classList.add('is-opening');
+        const revealDelay = reduceMotion ? 40 : 900;
+        const hideDelay = reduceMotion ? 120 : 1800;
+        window.setTimeout(() => {
+          document.body.classList.add('entered');
+          cover.classList.add('is-open');
+        }, revealDelay);
+        window.setTimeout(() => { cover.hidden = true; }, hideDelay);
+      }
+
+      function goTo(index) {
+        if (index < 0 || index >= pages.length || index === current) return;
+        current = index;
+        pages.forEach((page, pageIndex) => {
+          const active = pageIndex === current;
+          page.classList.toggle('is-on', active);
+          page.setAttribute('aria-hidden', String(!active));
+          if (active) page.scrollTop = 0;
+        });
+        navButtons.forEach(button => {
+          const active = Number(button.dataset.go) === current;
+          button.classList.toggle('is-on', active);
+          button.setAttribute('aria-current', active ? 'page' : 'false');
+        });
+        folio.textContent = pad(current);
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === pages.length - 1;
+        window.history.replaceState(null, '', `#${sectionSlugs[current]}`);
+      }
+
+      function step(direction) {
+        if (locked) return;
+        locked = true;
+        goTo(current + direction);
+        window.setTimeout(() => { locked = false; }, 700);
+      }
+
+      cover.addEventListener('click', enter);
+      cover.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          enter();
+        }
+      });
+      navButtons.forEach(button => button.addEventListener('click', () => goTo(Number(button.dataset.go))));
+      prevBtn.addEventListener('click', () => step(-1));
+      nextBtn.addEventListener('click', () => step(1));
+      musicToggle.addEventListener('click', () => bgMusic.paused ? playMusic() : bgMusic.pause());
+      bgMusic.addEventListener('play', syncMusicState);
+      bgMusic.addEventListener('pause', syncMusicState);
+      bgMusic.addEventListener('ended', syncMusicState);
+      bgMusic.volume = .46;
+      attemptAutoplay();
+      document.addEventListener('pointerdown', resumeMusicOnce, { once: true });
+      document.addEventListener('keydown', resumeMusicOnce, { once: true });
+
+      document.addEventListener('keydown', event => {
+        if (!document.body.classList.contains('entered')) return;
+        if (event.key === 'ArrowRight') step(1);
+        if (event.key === 'ArrowLeft') step(-1);
+      });
+
+      document.addEventListener('wheel', event => {
+        if (!document.body.classList.contains('entered')) return;
+        const page = pages[current];
+        const atTop = page.scrollTop <= 1;
+        const atBottom = page.scrollTop + page.clientHeight >= page.scrollHeight - 1;
+        if (event.deltaY > 40 && atBottom) step(1);
+        if (event.deltaY < -40 && atTop) step(-1);
+      }, { passive: true });
+
+      document.addEventListener('touchstart', event => {
+        if (event.touches.length !== 1) return;
+        touchX = event.touches[0].clientX;
+        touchY = event.touches[0].clientY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', event => {
+        if (!document.body.classList.contains('entered')) return;
+        const deltaX = event.changedTouches[0].clientX - touchX;
+        const deltaY = event.changedTouches[0].clientY - touchY;
+        if (Math.abs(deltaX) > 70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) step(deltaX < 0 ? 1 : -1);
+      }, { passive: true });
+
+      pages.forEach((page, index) => page.setAttribute('aria-hidden', String(index !== 0)));
+      navButtons[0].setAttribute('aria-current', 'page');
+
+      const answers = document.getElementById('answers');
+      const answersBody = document.getElementById('answersBody');
+      const answersChips = document.getElementById('answersChips');
+      const answersInput = document.getElementById('answersInput');
+      const answersPh = document.getElementById('answersPh');
+      const answerBook = [
+        ['太自卑怎么办', '人是群居动物 但思想不是'],
+        ['人为什么而活？', '唯此所谓'],
+        ['爱的本质是什么？', '爱是一块泥土 万物靠它扎根'],
+        ['忘记痛苦就能幸福吗？', '今天的你还需要一个答案 但明天的你或许不需要了'],
+        ['如果相遇要分别 那意义在哪？', '人总是要死的 但你不还是坚定的选择了活着吗'],
+        ['痛苦的终点是？', '死无葬身之地']
+      ];
+      const answerEnding = [
+        ['到此为止吧', false],
+        ['你还要追问到什么时候', false],
+        ['贪得无厌的家伙 如果你还有其他问题去找沈聿吧', true]
+      ];
+      const pause = reduceMotion ? 0 : 520;
+      let answersOpen = false;
+      let answersAsked = 0;
+      let answersBusy = false;
+      let answersStep = 0;
+
+      function answersSay(text, side) {
+        const row = document.createElement('div');
+        row.className = 'answers-row answers-row-' + side;
+        const bubble = document.createElement('p');
+        bubble.className = 'answers-bubble';
+        bubble.textContent = text;
+        row.appendChild(bubble);
+        answersBody.appendChild(row);
+        answersBody.scrollTop = answersBody.scrollHeight;
+      }
+
+      function answersUnfold() {
+        if (answersOpen || answersAsked >= answerBook.length) return;
+        answersOpen = true;
+        answersChips.hidden = false;
+      }
+
+      function answersTell(chip) {
+        if (answersBusy) return;
+        answersBusy = true;
+        const entry = answerBook[Number(chip.dataset.i)];
+        chip.remove();
+        answersSay(entry[0], 'me');
+        window.setTimeout(() => {
+          answersSay(entry[1], 'them');
+          answersAsked += 1;
+          answersBusy = false;
+          if (answersAsked >= answerBook.length) {
+            answersChips.hidden = true;
+            answersOpen = false;
+            answersInput.classList.add('is-wait');
+            answersPh.textContent = '还有什么想问的吗';
+          }
+        }, pause);
+      }
+
+      function answersEnd() {
+        if (answersBusy || answersStep >= answerEnding.length) return;
+        const line = answerEnding[answersStep];
+        answersBusy = true;
+        answersStep += 1;
+        answersSay(line[0], 'them');
+        window.setTimeout(() => {
+          answersBusy = false;
+          if (!line[1]) return;
+          answersSay('...好', 'me');
+          answersInput.classList.remove('is-wait');
+          answersInput.classList.add('is-done');
+          answersInput.disabled = true;
+          answersPh.textContent = '沈聿或许知道更多';
+        }, pause);
+      }
+
+      answers.addEventListener('click', event => {
+        const chip = event.target.closest('.answers-chip');
+        if (chip) {
+          answersTell(chip);
+          return;
+        }
+        if (answersAsked >= answerBook.length) {
+          answersEnd();
+          return;
+        }
+        answersUnfold();
+      });
+      const initialIndex = sectionSlugs.indexOf(window.location.hash.slice(1));
+      if (initialIndex >= 0) {
+        enter(true);
+        if (initialIndex !== 0) goTo(initialIndex);
+      }
+    })();
+  </script>
+</body>
+</html>
