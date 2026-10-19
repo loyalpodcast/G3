@@ -807,7 +807,14 @@
       }
 
     
-      // 启示录对话逻辑
+// 封面点击跳转
+const cover = document.getElementById('cover');
+cover.addEventListener('click', () => {
+  cover.classList.add('is-open');
+});
+
+// ==========下面是你原来的启示录代码，保持不动==========
+// 启示录对话逻辑
 const chatData = [
 {q:"太自卑怎么办", a:"人是群居动物 但思想不是"},
 {q:"人为什么而活？", a:"唯此所谓"},
