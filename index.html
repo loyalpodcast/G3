@@ -843,7 +843,7 @@
           <div class="sheet-whole" id="sheetWhole" aria-hidden="true">
             <span class="reply-watermark" aria-hidden="true">沈</span>
             <div class="reply">
-              <p class="reply-mark">Reply · 沈聿</p>
+              <p class="reply-mark">Reply · 启示录</p>
               <div class="reply-body" id="replyBody">
                 <p class="reply-note">纸页已经合拢 你可以发出疑问 它会写在下面</p>
                 <div class="reply-list" id="replyList">
@@ -1117,8 +1117,8 @@
       const replyBook = [
         ['人为什么而活？', '唯此所谓'],
         ['爱的本质是什么？', '爱是一块泥土 万物靠它扎根'],
-        ['忘记痛苦就能幸福吗？', '今天的你还需要一个答案 但明天的你或许不需要了'],
-        ['如果相遇要分别那意义在哪？', '人总是要死的 但你不还是坚定的选择了活着吗'],
+        ['忘记痛苦就能幸福吗？', '今天的你还需要答案 但明天的你或许不需要'],
+        ['如果相遇要分别那意义在哪？', '人总是要死的 但你不还是选择了活着吗'],
         ['痛苦的终点是？', '死无葬身之地']
       ];
       let replied = 0;
@@ -1140,7 +1140,7 @@
         if (replied >= replyBook.length) {
           const end = document.createElement('p');
           end.className = 'reply-end';
-          end.textContent = '纸页合上了 如果你还有疑问 去找沈聿';
+          end.textContent = '纸页合上了 如果还有疑问 去找沈聿';
           const sign = document.createElement('p');
           sign.className = 'reply-sign';
           sign.textContent = '—— 启示录';
