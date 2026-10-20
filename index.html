@@ -183,27 +183,38 @@
       right: 48px;
       bottom: 24px;
       display: flex;
-      gap: 8px;
+      align-items: stretch;
       opacity: 0;
       transition: opacity 1.2s ease .45s;
     }
     body.entered .pager { opacity: 1; }
-    .pager button {
-      width: 44px;
+    .turn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 94px;
       height: 44px;
+      padding: 0 15px;
       border: 1px solid var(--paper-faint);
-      border-radius: 50%;
-      background: rgba(8, 9, 11, .56);
+      background: rgba(8, 9, 11, .72);
+      backdrop-filter: blur(8px);
       color: var(--paper-dim);
+      font: italic 11px/1 var(--latin);
+      letter-spacing: .22em;
       cursor: pointer;
-      transition: border-color .4s ease, color .4s ease, transform .4s var(--ease);
+      transition: color .4s ease, background .4s ease, border-color .4s ease;
     }
-    .pager button:not(:disabled):hover { color: var(--paper); border-color: var(--paper-dim); transform: scale(1.06); }
-    .pager button:disabled { opacity: .25; cursor: default; }
+    .turn-prev { justify-content: flex-start; border-right: 0; }
+    .turn-next { justify-content: flex-end; }
+    .turn-arrow { font-size: 13px; letter-spacing: 0; }
+    .turn-no { color: var(--paper); font-size: 12px; letter-spacing: .12em; }
+    .turn:not(:disabled):hover { color: var(--paper); border-color: var(--paper-dim); background: rgba(255, 255, 255, .05); }
+    .turn:disabled { opacity: .26; cursor: default; }
+    .turn:disabled .turn-no { color: var(--paper-dim); }
     .music-toggle {
       position: fixed;
       z-index: 900;
-      right: 152px;
+      right: 248px;
       bottom: 24px;
       width: 44px;
       height: 44px;
@@ -376,6 +387,219 @@
     .resource-en { display: block; margin-top: 8px; color: var(--paper-dim); font: 11px/1.7 var(--serif); letter-spacing: .18em; }
     .closing { margin-top: 28px; text-align: right; color: var(--paper-dim); font-size: 12px; letter-spacing: .26em; }
 
+    .extra { background: #07080a; }
+    .extra-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 34%, #16181c 0%, #0b0c0f 46%, #07080a 100%);
+    }
+    .extra-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(180deg, transparent 0 47px, rgba(222, 221, 216, .022) 47px 48px);
+    }
+    .extra .page-inner {
+      width: min(980px, calc(100% - 144px));
+      padding-top: 112px;
+      padding-bottom: 96px;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+    }
+    .extra-head { display: flex; flex-direction: column; align-items: center; }
+    .extra .eyebrow { justify-content: center; margin-bottom: 26px; }
+    .extra .page-title { font-size: clamp(40px, 6vw, 72px); }
+    .extra .page-title small { margin-top: 18px; letter-spacing: .42em; }
+    .extra-hint { margin-top: 26px; color: var(--paper-dim); font-family: var(--kai); font-size: 15px; line-height: 1.9; letter-spacing: .26em; }
+
+    .seal {
+      position: relative;
+      width: min(840px, 100%);
+      height: clamp(360px, 50vh, 508px);
+      margin-top: clamp(24px, 4vh, 40px);
+    }
+    .seal-outline {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      border: 1px dashed rgba(222, 221, 216, .1);
+    }
+    .seal-glow {
+      position: absolute;
+      inset: -30px;
+      z-index: 4;
+      opacity: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at 50% 50%, rgba(184, 59, 63, .2), transparent 62%);
+    }
+    .seal.is-sealed .seal-glow { animation: sealFlash 1.7s ease-out forwards; }
+    @keyframes sealFlash { 0% { opacity: .92; } 55% { opacity: .3; } 100% { opacity: 0; } }
+
+    .sheet {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      z-index: 1;
+      cursor: grab;
+      touch-action: none;
+      will-change: transform;
+      filter: drop-shadow(0 0 1px rgba(222, 221, 216, .26)) drop-shadow(0 24px 38px rgba(0, 0, 0, .62));
+      transition: transform .62s var(--ease), filter .5s ease, opacity .65s ease;
+      background: linear-gradient(158deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 38%), radial-gradient(circle at 26% 14%, #23242a 0%, #17181c 52%, #101114 100%);
+    }
+    .sheet::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .07;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+    }
+    .sheet-left {
+      left: 0;
+      clip-path: polygon(0 0, 100% 0, 96% 5%, 99% 10%, 94% 15%, 97.5% 20%, 93% 26%, 97% 32%, 99% 38%, 95% 44%, 98% 50%, 93.5% 55%, 96.5% 61%, 99% 67%, 94.5% 73%, 97.5% 79%, 94% 85%, 98.5% 90%, 95.5% 95%, 98% 100%, 0 100%);
+    }
+    .sheet-right {
+      left: 50%;
+      clip-path: polygon(0 0, 4% 5%, 1% 10%, 6% 15%, 2.5% 20%, 7% 26%, 3% 32%, 1% 38%, 5% 44%, 2% 50%, 6.5% 55%, 3.5% 61%, 1% 67%, 5.5% 73%, 2.5% 79%, 6% 85%, 1.5% 90%, 4.5% 95%, 2% 100%, 100% 100%, 100% 0);
+    }
+    .sheet.is-dragging { z-index: 2; transition: none; cursor: grabbing; filter: drop-shadow(0 32px 50px rgba(0, 0, 0, .8)); }
+    .sheet.is-ready { filter: drop-shadow(0 0 26px rgba(184, 59, 63, .3)) drop-shadow(0 26px 42px rgba(0, 0, 0, .7)); }
+    .sheet.is-snapped { z-index: 2; cursor: default; }
+    .seal.is-sealed .sheet { opacity: 0; visibility: hidden; pointer-events: none; filter: none; transition: transform .62s var(--ease), filter .5s ease, opacity .7s ease .45s, visibility 0s .45s; }
+
+    .sheet-mark {
+      position: absolute;
+      top: 28px;
+      left: 34px;
+      right: 34px;
+      color: var(--paper-dim);
+      font: italic 10px/1 var(--latin);
+      letter-spacing: .38em;
+      text-transform: uppercase;
+    }
+    .sheet-left .sheet-mark { text-align: left; }
+    .sheet-right .sheet-mark { text-align: right; }
+    .sheet-frag {
+      position: absolute;
+      top: 48%;
+      color: var(--paper);
+      font-family: var(--kai);
+      font-size: clamp(17px, 1.7vw, 22px);
+      line-height: 1.9;
+      letter-spacing: .22em;
+    }
+    .sheet-left .sheet-frag { right: 42px; transform: translateY(-50%); text-align: right; }
+    .sheet-right .sheet-frag { left: 42px; transform: translateY(-50%); text-align: left; }
+    .sheet-foot { position: absolute; bottom: 26px; left: 34px; right: 34px; color: rgba(222, 221, 216, .32); font-size: 10px; letter-spacing: .32em; }
+    .sheet-left .sheet-foot { text-align: left; }
+    .sheet-right .sheet-foot { text-align: right; }
+    .sheet-dot { display: inline-block; width: 6px; height: 6px; margin-right: 10px; border-radius: 50%; background: var(--red-bright); box-shadow: 0 0 10px rgba(184, 59, 63, .8); vertical-align: middle; }
+
+    .sheet-whole {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border: 1px solid rgba(222, 221, 216, .18);
+      background: linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 40%), radial-gradient(circle at 28% 18%, #24252b 0%, #17181b 54%, #101114 100%);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, .7);
+      transition: opacity 1s ease .18s;
+    }
+    .sheet-whole::before {
+      content: "";
+      position: absolute;
+      top: 5%;
+      bottom: 5%;
+      left: 50%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(184, 59, 63, .45) 22%, rgba(222, 221, 216, .2) 50%, rgba(184, 59, 63, .38) 78%, transparent);
+    }
+    .sheet-whole::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .06;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+    }
+    .seal.is-sealed .sheet-whole { opacity: 1; pointer-events: auto; }
+
+    .reply-watermark {
+      position: absolute;
+      z-index: 1;
+      right: 6%;
+      top: 50%;
+      color: rgba(222, 221, 216, .022);
+      font-family: var(--kai);
+      font-size: clamp(150px, 24vw, 250px);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      transform: translateY(-50%);
+    }
+
+    .reply { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; padding: 26px 38px 22px; text-align: left; }
+    .reply-mark { color: var(--paper-dim); font: italic 10px/1 var(--latin); letter-spacing: .4em; text-transform: uppercase; }
+    .reply-body { flex: 1; min-height: 0; margin-top: 14px; padding: 0 6px 30px 0; overflow-y: auto; scrollbar-width: none; }
+    .reply-body.is-scrolled {
+      -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 18px, #000 100%);
+      mask-image: linear-gradient(180deg, transparent 0, #000 18px, #000 100%);
+    }
+    .reply-body::-webkit-scrollbar { display: none; }
+    .reply-note { padding-bottom: 10px; color: var(--paper-dim); font-family: var(--kai); font-size: 13px; line-height: 1.9; letter-spacing: .2em; }
+    .reply-list { display: flex; flex-direction: column; }
+    .reply-ask {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      align-items: baseline;
+      padding: 13px 0 11px;
+      border-bottom: 1px dashed rgba(222, 221, 216, .13);
+      background: transparent;
+      text-align: left;
+      color: var(--paper-dim);
+      cursor: pointer;
+      transition: color .4s ease;
+    }
+    .reply-ask:hover { color: var(--paper); }
+    .reply-ask.is-asked { color: var(--paper); cursor: default; }
+    .reply-no { color: var(--red-bright); font: italic 10px/1.8 var(--latin); letter-spacing: .1em; }
+    .reply-q { font-family: var(--kai); font-size: 16px; line-height: 1.8; letter-spacing: .14em; }
+    .reply-a {
+      margin: 0 0 8px 36px;
+      padding: 2px 0 12px;
+      border-bottom: 1px dashed rgba(222, 221, 216, .07);
+      color: var(--paper);
+      font-family: var(--kai);
+      font-size: 14px;
+      line-height: 2;
+      letter-spacing: .14em;
+      animation: replyIn .9s var(--ease) forwards;
+    }
+    @keyframes replyIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+    .reply-end { margin-top: 18px; color: rgba(184, 59, 63, .82); font-family: var(--kai); font-size: 13px; line-height: 1.9; letter-spacing: .24em; text-align: right; animation: replyIn 1s var(--ease) forwards; }
+    .reply-sign { margin-top: 8px; color: var(--paper-dim); font: italic 10px/1 var(--latin); letter-spacing: .3em; text-align: right; }
+    .reply-stamp {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      bottom: 16px;
+      padding: 6px 9px;
+      border: 1px solid rgba(184, 59, 63, .62);
+      color: rgba(184, 59, 63, .82);
+      font-family: var(--kai);
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-indent: .2em;
+      opacity: .85;
+      transform: translateX(-50%) rotate(-7deg);
+    }
+    .seal-caption { width: min(840px, 100%); margin-top: 78px; color: rgba(222, 221, 216, .3); font-size: 11px; letter-spacing: .26em; }
+
     :focus-visible { outline: 1px solid var(--paper); outline-offset: 4px; }
 
     @media (max-width: 820px) {
@@ -386,7 +610,7 @@
       .nav button { flex: 1; min-width: 0; padding: 7px 8px; font-size: 11px; letter-spacing: .1em; text-indent: .1em; }
       .folio { left: 20px; bottom: max(28px, calc(18px + env(safe-area-inset-bottom))); }
       .pager { right: 20px; bottom: max(20px, calc(10px + env(safe-area-inset-bottom))); }
-      .music-toggle { right: 116px; bottom: max(20px, calc(10px + env(safe-area-inset-bottom))); }
+      .music-toggle { right: 182px; bottom: max(20px, calc(10px + env(safe-area-inset-bottom))); }
       .page-inner, .notice .page-inner { width: calc(100% - 48px); padding: 134px 0 110px; justify-content: flex-start; }
       .cover-poster { width: 100%; object-fit: cover; }
       .cover::before { display: none; }
@@ -410,6 +634,26 @@
       .story-copy p { font-size: 15px; }
       .resource { grid-template-columns: 40px 1fr; padding: 24px 6px; gap: 14px; }
       .resource-name { font-size: 23px; }
+      .extra .page-inner { width: calc(100% - 40px); padding: 118px 0 96px; }
+      .extra .page-title { font-size: 54px; }
+      .extra-hint { font-size: 13px; letter-spacing: .2em; }
+      .seal { width: calc(100% - 56px); height: clamp(330px, 46vh, 420px); margin-top: 26px; }
+      .sheet-mark { top: 20px; left: 22px; right: 22px; font-size: 8px; letter-spacing: .28em; }
+      .sheet-frag { font-size: 15px; letter-spacing: .18em; }
+      .sheet-left .sheet-frag { right: 28px; }
+      .sheet-right .sheet-frag { left: 28px; }
+      .sheet-foot { bottom: 18px; left: 22px; right: 22px; font-size: 8px; letter-spacing: .2em; }
+      .reply { padding: 20px 20px 18px; }
+      .reply-body { padding-bottom: 26px; }
+      .reply-ask { grid-template-columns: 28px 1fr; padding: 11px 0 9px; }
+      .reply-q { font-size: 14px; }
+      .reply-a { margin-left: 28px; font-size: 13px; }
+      .reply-stamp { bottom: 12px; font-size: 10px; }
+      .sheet-whole::before { background: linear-gradient(180deg, transparent, rgba(222, 221, 216, .05) 30%, rgba(222, 221, 216, .045) 70%, transparent); }
+      .seal-caption { margin-top: 38px; font-size: 10px; letter-spacing: .2em; }
+      .reply-watermark { right: 4%; font-size: 120px; }
+      .turn { min-width: 76px; height: 40px; padding: 0 12px; font-size: 10px; }
+      .turn-no { font-size: 11px; }
       .material-profile { right: -24%; bottom: -4%; width: min(92vw, 520px); opacity: .1; }
       .material-notice { right: -35%; top: 24%; width: min(95vw, 520px); opacity: .07; }
       .material-story { left: -30%; bottom: 2%; width: min(100vw, 560px); opacity: .1; }
@@ -425,7 +669,17 @@
       .style-block + .style-block { padding-left: 0; border-left: 0; border-top: 1px solid var(--paper-faint); }
       .prologue-answer { font-size: 12px; }
       .folio-line { width: 24px; }
-      .pager button { width: 40px; height: 40px; }
+      .turn { min-width: 70px; }
+      .extra .page-title { font-size: 46px; }
+      .extra-hint { font-size: 12px; letter-spacing: .16em; }
+      .seal { height: clamp(300px, 44vh, 380px); }
+      .sheet-frag { font-size: 13px; }
+      .sheet-left .sheet-frag { right: 22px; }
+      .sheet-right .sheet-frag { left: 22px; }
+      .sheet-mark { font-size: 7px; }
+      .reply { padding: 16px 16px 14px; }
+      .reply-q { font-size: 13px; }
+      .reply-a { margin-left: 24px; font-size: 12px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -458,6 +712,7 @@
       <button type="button" data-go="1">人物</button>
       <button type="button" data-go="2">须知</button>
       <button type="button" data-go="3">情节</button>
+      <button type="button" data-go="4">番外</button>
     </nav>
   </header>
 
@@ -494,12 +749,12 @@
             <div class="style-blocks reveal" style="--delay:.56s">
               <div class="style-block">
                 <span class="style-label">Main Style / 主</span>
-                <p class="style-name">非典型  温虐<br>意识流</p>
+                <p class="style-name">非典型 · 温虐<br>意识流</p>
                 <p class="style-note">如果叹息有深浅浓淡</p>
               </div>
               <div class="style-block">
                 <span class="style-label">Sub Style / 副</span>
-                <p class="style-name">低无锐利<br>水仙  白骑士</p>
+                <p class="style-name">低无锐利<br>水仙 · 白骑士</p>
                 <p class="style-note">如果眼泪有轻重缓急</p>
               </div>
             </div>
@@ -564,16 +819,64 @@
         </div>
       </div>
     </section>
+
+    <section class="page extra" id="extra" data-page="4" aria-labelledby="extra-title">
+      <div class="extra-bg" aria-hidden="true"></div>
+      <div class="page-inner">
+        <div class="extra-head">
+          <p class="eyebrow reveal" style="--delay:.1s">Side Story · 04</p>
+          <h2 class="page-title reveal" id="extra-title" style="--delay:.2s">番外<small>the page that was torn</small></h2>
+          <p class="extra-hint reveal" style="--delay:.3s">破碎的纸页 你或许可以尝试把它们修复</p>
+        </div>
+        <div class="seal reveal" id="seal" style="--delay:.42s">
+          <div class="seal-outline" aria-hidden="true"></div>
+          <div class="sheet sheet-left" id="sheetLeft" role="button" tabindex="0" aria-label="破碎纸页的左半 可拖动">
+            <p class="sheet-mark">Fragment · 01</p>
+            <p class="sheet-frag">裂痕也是纸的</p>
+            <p class="sheet-foot"><span class="sheet-dot" aria-hidden="true"></span>Left Half</p>
+          </div>
+          <div class="sheet sheet-right" id="sheetRight" role="button" tabindex="0" aria-label="破碎纸页的右半 可拖动">
+            <p class="sheet-mark">Fragment · 02</p>
+            <p class="sheet-frag">一部分</p>
+            <p class="sheet-foot">拖动 或 轻触 · 拼合</p>
+          </div>
+          <div class="sheet-whole" id="sheetWhole" aria-hidden="true">
+            <span class="reply-watermark" aria-hidden="true">沈</span>
+            <div class="reply">
+              <p class="reply-mark">Reply · 沈聿</p>
+              <div class="reply-body" id="replyBody">
+                <p class="reply-note">纸页已经合拢 你可以发出疑问 它会写在下面</p>
+                <div class="reply-list" id="replyList">
+                  <button class="reply-ask" type="button" data-i="0"><span class="reply-no">01</span><span class="reply-q">你为什么会留在这张纸上？</span></button>
+                  <button class="reply-ask" type="button" data-i="1"><span class="reply-no">02</span><span class="reply-q">寂生还好吗？</span></button>
+                  <button class="reply-ask" type="button" data-i="2"><span class="reply-no">03</span><span class="reply-q">我该怎么忘掉一个人？</span></button>
+                  <button class="reply-ask" type="button" data-i="3"><span class="reply-no">04</span><span class="reply-q">如果纸页修不好呢？</span></button>
+                  <button class="reply-ask" type="button" data-i="4"><span class="reply-no">05</span><span class="reply-q">你和他是什么关系？</span></button>
+                </div>
+                <div id="replyEnd"></div>
+              </div>
+              <span class="reply-stamp" aria-hidden="true">已修补</span>
+            </div>
+          </div>
+          <div class="seal-glow" aria-hidden="true"></div>
+        </div>
+        <p class="seal-caption reveal" style="--delay:.52s">Two Halves · One Letter</p>
+      </div>
+    </section>
   </main>
 
   <div class="folio" aria-live="polite">
     <span class="folio-current" id="folioCurrent">00</span>
     <span class="folio-line"></span>
-    <span>03</span>
+    <span>04</span>
   </div>
   <div class="pager" aria-label="翻页控制">
-    <button type="button" id="prevBtn" aria-label="上一章" disabled>←</button>
-    <button type="button" id="nextBtn" aria-label="下一章">→</button>
+    <button class="turn turn-prev" type="button" id="prevBtn" aria-label="上一章" disabled>
+      <span class="turn-arrow">←</span><span class="turn-no" id="prevNo">00</span>
+    </button>
+    <button class="turn turn-next" type="button" id="nextBtn" aria-label="下一章">
+      <span class="turn-no" id="nextNo">01</span><span class="turn-arrow">→</span>
+    </button>
   </div>
   <button class="music-toggle" id="musicToggle" type="button" aria-label="播放背景音乐" aria-pressed="false" title="背景音乐">
     <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -588,16 +891,19 @@
       const navButtons = [...document.querySelectorAll('[data-go]')];
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
+      const prevNo = document.getElementById('prevNo');
+      const nextNo = document.getElementById('nextNo');
       const folio = document.getElementById('folioCurrent');
       const bgMusic = document.getElementById('bgMusic');
       const musicToggle = document.getElementById('musicToggle');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const sectionSlugs = ['prologue', 'profile', 'notice', 'story'];
+      const sectionSlugs = ['prologue', 'profile', 'notice', 'story', 'extra'];
       let current = 0;
       let locked = false;
       let opening = false;
       let touchX = 0;
       let touchY = 0;
+      let dragGuard = 0;
 
       const pad = value => String(value).padStart(2, '0');
 
@@ -656,6 +962,8 @@
           button.setAttribute('aria-current', active ? 'page' : 'false');
         });
         folio.textContent = pad(current);
+        prevNo.textContent = pad(Math.max(current - 1, 0));
+        nextNo.textContent = pad(Math.min(current + 1, pages.length - 1));
         prevBtn.disabled = current === 0;
         nextBtn.disabled = current === pages.length - 1;
         window.history.replaceState(null, '', `#${sectionSlugs[current]}`);
@@ -710,6 +1018,7 @@
 
       document.addEventListener('touchend', event => {
         if (!document.body.classList.contains('entered')) return;
+        if (Date.now() - dragGuard < 320) return;
         const deltaX = event.changedTouches[0].clientX - touchX;
         const deltaY = event.changedTouches[0].clientY - touchY;
         if (Math.abs(deltaX) > 70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) step(deltaX < 0 ? 1 : -1);
@@ -717,6 +1026,129 @@
 
       pages.forEach((page, index) => page.setAttribute('aria-hidden', String(index !== 0)));
       navButtons[0].setAttribute('aria-current', 'page');
+
+      const seal = document.getElementById('seal');
+      const sheetWhole = document.getElementById('sheetWhole');
+      const replyBody = document.getElementById('replyBody');
+      const replyList = document.getElementById('replyList');
+      const replyEnd = document.getElementById('replyEnd');
+      const sealSpan = seal.clientWidth || 720;
+      const sideRoom = Math.max(0, (document.documentElement.clientWidth - sealSpan) / 2);
+      const spreadX = Math.min(96, Math.max(10, sideRoom - 26));
+      const spreadY = Math.max(14, Math.min(32, sealSpan * .04));
+      const limitX = Math.max(90, sealSpan * .3);
+      const limitY = Math.max(64, sealSpan * .16);
+      const snapGap = Math.max(42, sealSpan * .06);
+      const pieces = [
+        { el: document.getElementById('sheetLeft'), x: -spreadX, y: -spreadY * .7, r: -4.5, snapped: false },
+        { el: document.getElementById('sheetRight'), x: spreadX, y: spreadY, r: 4, snapped: false }
+      ];
+      let sealed = false;
+      let dragging = null;
+
+      const clampValue = (value, min, max) => Math.min(Math.max(value, min), max);
+
+      function paintPiece(piece) {
+        piece.el.style.transform = 'translate3d(' + piece.x + 'px, ' + piece.y + 'px, 0) rotate(' + piece.r + 'deg)';
+      }
+
+      function sealSheet() {
+        if (sealed) return;
+        sealed = true;
+        seal.classList.add('is-sealed');
+        sheetWhole.setAttribute('aria-hidden', 'false');
+      }
+
+      function snapPiece(piece) {
+        if (piece.snapped || sealed) return;
+        piece.snapped = true;
+        piece.x = 0;
+        piece.y = 0;
+        piece.r = 0;
+        piece.el.classList.remove('is-dragging', 'is-ready');
+        piece.el.classList.add('is-snapped');
+        paintPiece(piece);
+        if (pieces.every(item => item.snapped)) {
+          window.setTimeout(sealSheet, reduceMotion ? 60 : 520);
+        }
+      }
+
+      pieces.forEach(piece => {
+        paintPiece(piece);
+        const el = piece.el;
+        el.addEventListener('pointerdown', event => {
+          if (piece.snapped || sealed) return;
+          event.preventDefault();
+          dragGuard = Date.now();
+          try { el.setPointerCapture(event.pointerId); } catch (error) {}
+          el.classList.add('is-dragging');
+          dragging = { piece, id: event.pointerId, sx: event.clientX, sy: event.clientY, ox: piece.x, oy: piece.y, moved: 0 };
+        });
+        el.addEventListener('pointermove', event => {
+          if (!dragging || dragging.piece !== piece || dragging.id !== event.pointerId) return;
+          const dx = event.clientX - dragging.sx;
+          const dy = event.clientY - dragging.sy;
+          piece.x = clampValue(dragging.ox + dx, -limitX, limitX);
+          piece.y = clampValue(dragging.oy + dy, -limitY, limitY);
+          dragging.moved = Math.max(dragging.moved, Math.hypot(dx, dy));
+          el.classList.toggle('is-ready', Math.hypot(piece.x, piece.y) < snapGap + 12);
+          paintPiece(piece);
+        });
+        const finish = event => {
+          if (!dragging || dragging.piece !== piece) return;
+          if (event.pointerId !== undefined && dragging.id !== event.pointerId) return;
+          const moved = dragging.moved;
+          dragging = null;
+          dragGuard = Date.now();
+          el.classList.remove('is-dragging', 'is-ready');
+          if (Math.hypot(piece.x, piece.y) < snapGap || moved < 8) snapPiece(piece);
+          else paintPiece(piece);
+        };
+        el.addEventListener('pointerup', finish);
+        el.addEventListener('pointercancel', finish);
+        el.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            snapPiece(piece);
+          }
+        });
+      });
+
+      const replyBook = [
+        ['人为什么而活？', '唯此所谓'],
+        ['太自卑怎么办？', '人是群居动物 但思想不是'],
+        ['爱的本质是什么？', '不必忘 把他放到纸的背面 灯亮的时候他就不会响'],
+        ['忘记痛苦就能幸福吗？', '今天的你还需要一个答案 但明天的你或许不需要了'],
+        ['如果相遇要分别 那意义在哪？？', '人总是要死的 但你不还是坚定的选择了活着吗']
+      ];
+      let replied = 0;
+
+      replyBody.addEventListener('scroll', () => {
+        replyBody.classList.toggle('is-scrolled', replyBody.scrollTop > 4);
+      }, { passive: true });
+
+      replyList.addEventListener('click', event => {
+        const ask = event.target.closest('.reply-ask');
+        if (!ask || ask.classList.contains('is-asked')) return;
+        ask.classList.add('is-asked');
+        ask.disabled = true;
+        const answer = document.createElement('p');
+        answer.className = 'reply-a';
+        answer.textContent = replyBook[Number(ask.dataset.i)][1];
+        ask.insertAdjacentElement('afterend', answer);
+        replied += 1;
+        if (replied >= replyBook.length) {
+          const end = document.createElement('p');
+          end.className = 'reply-end';
+          end.textContent = '纸页合上了 如果你还有疑问 去找沈聿';
+          const sign = document.createElement('p');
+          sign.className = 'reply-sign';
+          sign.textContent = '—— 启示录';
+          replyEnd.appendChild(end);
+          replyEnd.appendChild(sign);
+        }
+        replyBody.scrollTop = replyBody.scrollHeight;
+      });
       const initialIndex = sectionSlugs.indexOf(window.location.hash.slice(1));
       if (initialIndex >= 0) {
         enter(true);
